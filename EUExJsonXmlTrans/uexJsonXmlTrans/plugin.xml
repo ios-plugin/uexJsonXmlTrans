@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<uexplugins>
+    <plugin name="uexJsonXmlTrans">
+        <method name="json2xml"></method>
+        <method name="xml2json"></method>
+    </plugin>
+</uexplugins>
