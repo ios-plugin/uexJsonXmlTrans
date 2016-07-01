@@ -13,6 +13,7 @@
 
 @interface EUExJsonXmlTrans()
 @property (nonatomic,strong) NSArray * pathKeys;
+@property (nonatomic,strong) ACJSFunctionRef *func;
 @end
 
 
@@ -37,14 +38,19 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
 */
 #pragma mark - Required Method
 
--(instancetype)initWithBrwView:(EBrowserView *)eInBrwView{
-    self=[super initWithBrwView:eInBrwView];
-    if(self){
+//-(instancetype)initWithBrwView:(EBrowserView *)eInBrwView{
+//    self=[super initWithBrwView:eInBrwView];
+//    if(self){
+//        self.pathKeys=@[@"wgt://",@"res://",@"file://",@"wgts://"];
+//    }
+//    return self;
+//}
+-(id)initWithWebViewEngine:(id<AppCanWebViewEngineObject>)engine{
+    if (self = [super initWithWebViewEngine:engine]) {
         self.pathKeys=@[@"wgt://",@"res://",@"file://",@"wgts://"];
     }
     return self;
 }
-
 
 -(void)clean{
     
@@ -59,6 +65,8 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
 #pragma mark - Main API
 
 -(void)json2xml:(NSMutableArray *)inArguments{
+    ACJSFunctionRef *func = JSFunctionArg(inArguments.lastObject);
+    self.func = func;
     if([inArguments count] < 1||![inArguments[0] isKindOfClass:[NSString class]]){
         [self parseResultCallback:uexJsonXmlTransErrorInvalidParam];
         return;
@@ -71,7 +79,7 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
             isFilePath = YES;
         }
     }
-    NSError *error = nil;
+    __block NSError *error = nil;
     if(isFilePath){
         jsonData=[NSData dataWithContentsOfFile:[self absPath:info]];
         if(!jsonData){
@@ -83,8 +91,13 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
     }else{
         jsonData=[info dataUsingEncoding:NSUTF8StringEncoding];
     }
-
-    NSDictionary * dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&error];
+   
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        NSDictionary * dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&error];
+        [self parseResultCallback:[NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>%@",[[dict innerXML] stringByReplacingOccurrencesOfString:@">\n<" withString:@"><"]]];
+        NSLog(@"currentThread:%@",[NSThread currentThread]);
+    });
+   
     
     //NSDictionary *dict =
     if(error){
@@ -92,9 +105,11 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
         return;
     }
     
-    [self parseResultCallback:[NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>%@",[[dict innerXML] stringByReplacingOccurrencesOfString:@">\n<" withString:@"><"]]];
+    
 }
 -(void)xml2json:(NSMutableArray *)inArguments{
+    ACJSFunctionRef *func = JSFunctionArg(inArguments.lastObject);
+    //self.func = func;
     if([inArguments count] < 1||![inArguments[0] isKindOfClass:[NSString class]]){
         [self parseResultCallback:uexJsonXmlTransErrorInvalidParam];
         return;
@@ -121,35 +136,42 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
 
     }
     //xmlString=[xmlString stringByReplacingOccurrencesOfString:@">\n<" withString:@"><"];
-    NSMutableDictionary *dict = [[NSDictionary dictionaryWithXMLString:xmlString] mutableCopy];
-    [dict removeObjectForKey:XMLDictionaryNodeNameKey];
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        NSMutableDictionary *dict = [[NSDictionary dictionaryWithXMLString:xmlString] mutableCopy];
+        [dict removeObjectForKey:XMLDictionaryNodeNameKey];
         /*
-        xmlData=[NSData dataWithContentsOfFile:[self absPath:info]];
-        if(!xmlData){
-            [self parseResultCallback:uexJsonXmlTransErrorInvalidFilePath];
-            return;
-        }
-    }else{
-        xmlData=[info dataUsingEncoding:NSUTF8StringEncoding];
-    }
-    NSDictionary *dict = [NSDictionary dictionaryWithXMLData:xmlData];
-    if(!dict){
-        [self parseResultCallback:uexJsonXmlTransErrorParseXmlFailed];
-        return;
-    }
+         xmlData=[NSData dataWithContentsOfFile:[self absPath:info]];
+         if(!xmlData){
+         [self parseResultCallback:uexJsonXmlTransErrorInvalidFilePath];
+         return;
+         }
+         }else{
+         xmlData=[info dataUsingEncoding:NSUTF8StringEncoding];
+         }
+         NSDictionary *dict = [NSDictionary dictionaryWithXMLData:xmlData];
+         if(!dict){
+         [self parseResultCallback:uexJsonXmlTransErrorParseXmlFailed];
+         return;
+         }
          */
-    [self parseResultCallback:[dict JSONFragment]];
-
+        [self parseResultCallback:[dict ac_JSONFragment]];
+        [func executeWithArguments:ACArgsPack(dict)];
+         NSLog(@"currentThread:%@",[NSThread currentThread]);
+    });
+    
 }
 #pragma mark - JSON Callback
 
 
 -(void)parseResultCallback:(NSString *)resultStr{
-    static NSString * pluginName = @"uexJsonXmlTrans";
-    static NSString * name = @"cbTransFinished";
-    NSString *jsStr = [NSString stringWithFormat:@"if(%@.%@ != null){%@.%@('%@');}",pluginName,name,pluginName,name,resultStr];
-  
-    NSLog(jsStr);
-    [EUtility brwView:meBrwView evaluateScript:jsStr];
+//    static NSString * pluginName = @"uexJsonXmlTrans";
+//    static NSString * name = @"cbTransFinished";
+//    NSString *jsStr = [NSString stringWithFormat:@"if(%@.%@ != null){%@.%@('%@');}",pluginName,name,pluginName,name,resultStr];
+//  
+//    NSLog(jsStr);
+//    [EUtility brwView:meBrwView evaluateScript:jsStr];
+    [self.webViewEngine callbackWithFunctionKeyPath:@"uexJsonXmlTrans.cbTransFinished" arguments:ACArgsPack(resultStr)];
+    [self.func executeWithArguments:ACArgsPack(resultStr)];
+    self.func = nil;
 }
 @end

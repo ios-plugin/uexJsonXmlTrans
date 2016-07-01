@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "EUExBase.h"
+
 
 
 @interface EUExJsonXmlTrans : EUExBase

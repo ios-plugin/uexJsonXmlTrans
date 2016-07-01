@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2127A5741D24C28D00134EFB /* AppCanKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2127A5731D24C28C00134EFB /* AppCanKit.framework */; };
 		4205EDED1BB0F80F00D03405 /* EUExJsonXmlTrans.m in Sources */ = {isa = PBXBuildFile; fileRef = 4205EDEC1BB0F80F00D03405 /* EUExJsonXmlTrans.m */; };
-		424F004D1BB151590083EA30 /* XMLDictionary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 424F004C1BB151590083EA30 /* XMLDictionary.framework */; settings = {ASSET_TAGS = (); }; };
+		424F004D1BB151590083EA30 /* XMLDictionary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 424F004C1BB151590083EA30 /* XMLDictionary.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,11 +25,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2127A5731D24C28C00134EFB /* AppCanKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AppCanKit.framework; sourceTree = "<group>"; };
 		4205EDE71BB0F80F00D03405 /* libuexJsonXmlTrans.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libuexJsonXmlTrans.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4205EDEA1BB0F80F00D03405 /* EUExJsonXmlTrans.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EUExJsonXmlTrans.h; sourceTree = "<group>"; };
 		4205EDEC1BB0F80F00D03405 /* EUExJsonXmlTrans.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EUExJsonXmlTrans.m; sourceTree = "<group>"; };
 		4205EDF41BB0FC8500D03405 /* EUExBase+Bundle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "EUExBase+Bundle.h"; sourceTree = "<group>"; };
-		4205EDF51BB0FC8500D03405 /* EUExBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EUExBase.h; sourceTree = "<group>"; };
 		4205EDF61BB0FC8500D03405 /* EUExBaseDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EUExBaseDefine.h; sourceTree = "<group>"; };
 		4205EDF71BB0FC8500D03405 /* EUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EUtility.h; sourceTree = "<group>"; };
 		4205EDF81BB0FC8500D03405 /* WidgetOneDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WidgetOneDelegate.h; sourceTree = "<group>"; };
@@ -50,6 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2127A5741D24C28D00134EFB /* AppCanKit.framework in Frameworks */,
 				424F004D1BB151590083EA30 /* XMLDictionary.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -88,7 +90,6 @@
 			isa = PBXGroup;
 			children = (
 				4205EDF41BB0FC8500D03405 /* EUExBase+Bundle.h */,
-				4205EDF51BB0FC8500D03405 /* EUExBase.h */,
 				4205EDF61BB0FC8500D03405 /* EUExBaseDefine.h */,
 				4205EDF71BB0FC8500D03405 /* EUtility.h */,
 				4205EDF81BB0FC8500D03405 /* WidgetOneDelegate.h */,
@@ -99,6 +100,7 @@
 		4205EDF91BB0FC8B00D03405 /* sourceCode */ = {
 			isa = PBXGroup;
 			children = (
+				2127A5731D24C28C00134EFB /* AppCanKit.framework */,
 				424F004C1BB151590083EA30 /* XMLDictionary.framework */,
 				4205EDFA1BB0FC8B00D03405 /* JSON */,
 				424F00381BB1213E0083EA30 /* PrefixHeader.pch */,
