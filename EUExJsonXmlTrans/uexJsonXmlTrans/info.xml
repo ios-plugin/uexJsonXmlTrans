@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <uexplugins>
-    <plugin
-        uexName="uexJsonXmlTrans" version="3.0.1" build="1">
-        <info>1:添加IDE支持</info>
-        <build>0:JsonXmlTrans 插件</build>
-    </plugin>
+  <plugin uexName="uexJsonXmlTrans" version="3.0.2" build="2">
+    <info>2: IDE证书更新</info>
+    <build>1: 添加IDE支持</build>
+    <build>0: JsonXmlTrans 插件</build>
+  </plugin>
 </uexplugins>
