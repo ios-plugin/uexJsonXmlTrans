@@ -13,7 +13,6 @@
 
 @interface EUExJsonXmlTrans()
 @property (nonatomic,strong) NSArray * pathKeys;
-@property (nonatomic,strong) ACJSFunctionRef *func;
 @end
 
 
@@ -38,13 +37,6 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
 */
 #pragma mark - Required Method
 
-//-(instancetype)initWithBrwView:(EBrowserView *)eInBrwView{
-//    self=[super initWithBrwView:eInBrwView];
-//    if(self){
-//        self.pathKeys=@[@"wgt://",@"res://",@"file://",@"wgts://"];
-//    }
-//    return self;
-//}
 -(id)initWithWebViewEngine:(id<AppCanWebViewEngineObject>)engine{
     if (self = [super initWithWebViewEngine:engine]) {
         self.pathKeys=@[@"wgt://",@"res://",@"file://",@"wgts://"];
@@ -66,12 +58,12 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
 
 -(void)json2xml:(NSMutableArray *)inArguments{
     ACJSFunctionRef *func = JSFunctionArg(inArguments.lastObject);
-    self.func = func;
     if([inArguments count] < 1||![inArguments[0] isKindOfClass:[NSString class]]){
         [self parseResultCallback:uexJsonXmlTransErrorInvalidParam];
         return;
     }
-    NSString *info = inArguments[0];
+    //NSString *info = inArguments[0];
+    ACArgsUnpack(NSString *info) = inArguments;
     NSData *jsonData = nil;
     BOOL isFilePath = NO;
     for(NSString * pathKey in self.pathKeys){
@@ -84,6 +76,7 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
         jsonData=[NSData dataWithContentsOfFile:[self absPath:info]];
         if(!jsonData){
             [self parseResultCallback:uexJsonXmlTransErrorInvalidFilePath];
+            [func executeWithArguments:ACArgsPack(@(1),uexJsonXmlTransErrorInvalidFilePath)];
             return;
         }
         
@@ -94,27 +87,30 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
    
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         NSDictionary * dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:&error];
-        [self parseResultCallback:[NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>%@",[[dict innerXML] stringByReplacingOccurrencesOfString:@">\n<" withString:@"><"]]];
-        NSLog(@"currentThread:%@",[NSThread currentThread]);
+        if(error){
+            [self parseResultCallback:uexJsonXmlTransErrorParseJsonFailed];
+            [func executeWithArguments:ACArgsPack(@(1),uexJsonXmlTransErrorParseJsonFailed)];
+            return;
+        }
+        NSString *resultStr = [NSString stringWithFormat:@"<?xml version=\"1.0\" encoding=\"utf-8\"?>%@",[[dict innerXML] stringByReplacingOccurrencesOfString:@">\n<" withString:@"><"]];
+        [self parseResultCallback:resultStr];
+        [func executeWithArguments:ACArgsPack(@(0),resultStr)];
+       
     });
    
     
-    //NSDictionary *dict =
-    if(error){
-        [self parseResultCallback:uexJsonXmlTransErrorParseJsonFailed];
-        return;
-    }
     
     
 }
 -(void)xml2json:(NSMutableArray *)inArguments{
     ACJSFunctionRef *func = JSFunctionArg(inArguments.lastObject);
-    //self.func = func;
     if([inArguments count] < 1||![inArguments[0] isKindOfClass:[NSString class]]){
         [self parseResultCallback:uexJsonXmlTransErrorInvalidParam];
+        [func executeWithArguments:ACArgsPack(@(1),uexJsonXmlTransErrorInvalidParam)];
         return;
     }
-    NSString *info = inArguments[0];
+    //NSString *info = inArguments[0];
+    ACArgsUnpack(NSString*info) = inArguments;
     NSString *xmlString = nil;
     BOOL isFilePath = NO;
     for(NSString * pathKey in self.pathKeys){
@@ -128,6 +124,7 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
         NSString * tmp = [NSString stringWithContentsOfFile:[self absPath:info] encoding:NSUTF8StringEncoding error:&error];
         if(error){
             [self parseResultCallback:uexJsonXmlTransErrorInvalidFilePath];
+            [func executeWithArguments:ACArgsPack(@(1),uexJsonXmlTransErrorInvalidFilePath)];
         }
         xmlString=[NSString stringWithFormat:@"<root>%@</root>",[[tmp componentsSeparatedByString:@"?>"] lastObject]];
     }else{
@@ -135,27 +132,11 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
          xmlString=[NSString stringWithFormat:@"<root>%@</root>",[[info componentsSeparatedByString:@"?>"] lastObject]];
 
     }
-    //xmlString=[xmlString stringByReplacingOccurrencesOfString:@">\n<" withString:@"><"];
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         NSMutableDictionary *dict = [[NSDictionary dictionaryWithXMLString:xmlString] mutableCopy];
         [dict removeObjectForKey:XMLDictionaryNodeNameKey];
-        /*
-         xmlData=[NSData dataWithContentsOfFile:[self absPath:info]];
-         if(!xmlData){
-         [self parseResultCallback:uexJsonXmlTransErrorInvalidFilePath];
-         return;
-         }
-         }else{
-         xmlData=[info dataUsingEncoding:NSUTF8StringEncoding];
-         }
-         NSDictionary *dict = [NSDictionary dictionaryWithXMLData:xmlData];
-         if(!dict){
-         [self parseResultCallback:uexJsonXmlTransErrorParseXmlFailed];
-         return;
-         }
-         */
         [self parseResultCallback:[dict ac_JSONFragment]];
-        [func executeWithArguments:ACArgsPack(dict)];
+        [func executeWithArguments:ACArgsPack(@(0),dict)];
          NSLog(@"currentThread:%@",[NSThread currentThread]);
     });
     
@@ -164,14 +145,7 @@ NSString * const uexJsonXmlTransErrorParseXmlFailed=@"XML 解析出错";
 
 
 -(void)parseResultCallback:(NSString *)resultStr{
-//    static NSString * pluginName = @"uexJsonXmlTrans";
-//    static NSString * name = @"cbTransFinished";
-//    NSString *jsStr = [NSString stringWithFormat:@"if(%@.%@ != null){%@.%@('%@');}",pluginName,name,pluginName,name,resultStr];
-//  
-//    NSLog(jsStr);
-//    [EUtility brwView:meBrwView evaluateScript:jsStr];
+
     [self.webViewEngine callbackWithFunctionKeyPath:@"uexJsonXmlTrans.cbTransFinished" arguments:ACArgsPack(resultStr)];
-    [self.func executeWithArguments:ACArgsPack(resultStr)];
-    self.func = nil;
 }
 @end
