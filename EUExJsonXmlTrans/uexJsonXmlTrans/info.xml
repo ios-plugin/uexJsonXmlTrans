@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <uexplugins>
-    <plugin
-        uexName="uexJsonXmlTrans" version="4.0.0" build="0">
+    <plugin uexName="uexJsonXmlTrans" version="4.0.0" build="0">
         <info>0:uexJsonXmlTrans 4.0插件</info>
     </plugin>
 </uexplugins>
